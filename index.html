@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Webpage</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            transition: background-color 0.3s ease;
+        }
+        .container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+        }
+        .hidden {
+            display: none;
+        }
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            z-index: -1;
+        }
+        h1 {
+            font-size: 2em;
+            margin: 0;
+            opacity: 1;
+            transition: opacity 1s ease;
+        }
+        .button {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1em;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .video-container {
+            position: relative;
+            width: 640px;
+            height: 360px;
+            margin: auto;
+        }
+        video {
+            width: 100%;
+            height: 100%;
+        }
+        .counter {
+            font-size: 1.5em;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-image"></div>
+    <div class="container">
+        <div id="welcome" class="view">
+            <h1>እንኳን ወደ ሚኒዲ ድህረገፅ በሰላም መጡ!!!!</h1>
+            <button class="button" onclick="showNext()">ጀምር</button>
+        </div>
+        <div id="info" class="view hidden">
+            <p>ይህ ድህረገፅ ለልጆች ተብሎ የተዘጋጀ ሲሆን ልጆችዎን በትምህርት እና በስነምግባር ለማነፅ ታስቦ የተሰራ ነው!!</p>
+            <p>ይህ ድህረ ገፅ ልጆችን የሒሳብ እና የ ENGLISH ትምህርቶችን የሚያስተምር ነው!!</p>
+            <button class="button" onclick="showLogin()">ተስማምቼያለው</button>
+        </div>
+        <div id="login" class="view hidden">
+            <h1>Login</h1>
+            <input type="text" id="username" placeholder="Username" required><br>
+            <input type="password" id="password" placeholder="Password" required><br>
+            <button class="button" onclick="saveData()">ጨርስ</button>
+        </div>
+        <div id="videoPreview" class="view hidden">
+            <h1>መደመር</h1>
+            <div class="video-container">
+                <video id="videoPlayer" controls>
+                    <source id="videoSource" src="video-addition.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <div class="counter" id="timer">0:00</div>
+            <button class="button" onclick="startVideo()">Start</button>
+        </div>
+        <div id="returnUser" class="view hidden">
+            <h1>እንኳን ደህና መጡ <span id="userGreeting"></span></h1>
+            <input type="password" id="returnPassword" placeholder="Enter Password" required><br>
+            <button class="button" onclick="checkPassword()">መደመር</button>
+        </div>
+    </div>
+
+    <script>
+        function showNext() {
+            document.getElementById('welcome').classList.add('hidden');
+            document.getElementById('info').classList.remove('hidden');
+        }
+
+        function showLogin() {
+            document.getElementById('info').classList.add('hidden');
+            document.getElementById('login').classList.remove('hidden');
+        }
+
+        function saveData() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username && password) {
+                localStorage.setItem('username', username);
+                localStorage.setItem('password', password);
+                document.getElementById('login').classList.add('hidden');
+                document.getElementById('videoPreview').classList.remove('hidden');
+            } else {
+                alert('Please enter both username and password.');
+            }
+        }
+
+        function startVideo() {
+            const video = document.getElementById('videoPlayer');
+            const videoSource = document.getElementById('videoSource');
+            const timer = document.getElementById('timer');
+
+            video.addEventListener('ended', function() {
+                videoSource.src = 'video-rest.mp4';
+                video.load();
+                video.play();
+            });
+
+            let startTime = Date.now();
+            setInterval(() => {
+                let elapsed = Math.floor((Date.now() - startTime) / 1000);
+                let minutes = String(Math.floor(elapsed / 60)).padStart(2, '0');
+                let seconds = String(elapsed % 60).padStart(2, '0');
+                timer.textContent = `${minutes}:${seconds}`;
+                if (elapsed >= 60 && video.currentSrc.includes('video-addition.mp4')) {
+                    videoSource.src = 'video-rest.mp4';
+                    video.load();
+                    video.play();
+                }
+            }, 1000);
+        }
+
+        function checkPassword() {
+            const storedPassword = localStorage.getItem('password');
+            const enteredPassword = document.getElementById('returnPassword').value;
+            if (storedPassword === enteredPassword) {
+                document.getElementById('returnUser').classList.add('hidden');
+                document.getElementById('videoPreview').classList.remove('hidden');
+                document.getElementById('userGreeting').textContent = localStorage.getItem('username');
+            } else {
+                alert('Incorrect password.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('username') && localStorage.getItem('password')) {
+                document.getElementById('welcome').classList.add('hidden');
+                document.getElementById('returnUser').classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
